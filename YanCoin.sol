@@ -1,13 +1,16 @@
 import "./Ownable.sol";
 import "./ERCAbstract.sol";
+import "./SafeMath.sol";
 pragma solidity 0.5.12;
 
 contract YanCoin is ERC20{
     
+    using SafeMath for uint256;
+    
     string public constant symbol = "YCN";
     string public constant name = "YanCoin";
     uint public constant decimals =18;
-    uint private constant __totalSupply = 1000000;
+    uint private  __totalSupply = 1000000;
     
     mapping(address=>uint) private _balanceOf;
     mapping(address=> mapping(address=>uint)) private _allowances;
@@ -29,7 +32,9 @@ contract YanCoin is ERC20{
     }
     
     function mint(address account, uint256 amount) public onlyOwner{
-        _balanceOf[account] +=amount;
+       //How do we read the .add --> is it like js pass through?
+       __totalSupply = totalSupply.add(amount) ;
+       _balanceOf[account] = add(_balanceOf[account], amount);
         }
     
     
@@ -42,10 +47,11 @@ contract YanCoin is ERC20{
         return _balanceOf[account];
     }
     
+    //what is the give and take between if else and requires?  Just error messages?
     function transfer(address _to, uint _value) public returns (bool success){
         if(_value> 0 && _value <=balanceOf(msg.sender)){
-            _balanceOf[msg.sender] -= _value;
-            _balanceOf[_to] += _value;
+            _balanceOf[msg.sender] = sub(_balanceOf[msg.sender], _value);
+            _balanceOf[_to] = add(_balanceOf[_to], _value);
             return true;
         }else{
             return false;
@@ -57,9 +63,11 @@ contract YanCoin is ERC20{
         && value>0
         && _allowances[from][msg.sender]> value
         && _balanceOf[from]>value){
-            _allowances[from][msg.sender] -= value;
-            _balanceOf[from] -= value;
-            _balanceOf[to] += value;
+            
+            _allowances[from][msg.sender] = _allowances[from][msg.sender].sub(value);
+            _balanceOf[from] = subtract(_balanceOf[from], value);
+            _balanceOf[to] = _balanceOf[to].add(value);
+            
             return true;
         }
         else{
