@@ -7,20 +7,28 @@ contract YanCoin is ERC20{
     
     using SafeMath for uint256;
     
-    string private constant _symbol = "YCN";
-    string private constant _name = "YanCoin";
-    uint8 private constant _decimals = 18;
-    uint private  __totalSupply = 1000000;
+    string private  _symbol;
+    string private _name;
+    uint8 private  _decimals;
+    uint private  __totalSupply;
     
     mapping(address=>uint) private _balanceOf;
     mapping(address=> mapping(address=>uint)) private _allowances;
     
     constructor() public{
         _balanceOf[msg.sender]= __totalSupply;
+        _symbol = "YCN";
+        _name = "YanCoin";
+        _decimals = 18;
+        __totalSupply = 100;
     }
     
     function name() public view returns (string memory){
         return _name;
+    }
+    
+    function setName(string memory newName) public {
+        _name = newName;
     }
     
      function symbol() public view returns (string memory) {
@@ -32,7 +40,6 @@ contract YanCoin is ERC20{
     }
     
     function mint(address account, uint256 amount) public onlyOwner{
-       //How do we read the .add --> is it like js pass through?
        __totalSupply = __totalSupply.add(amount);
        _balanceOf[account] = _balanceOf[account].add(amount);
         }
@@ -46,35 +53,29 @@ contract YanCoin is ERC20{
         return _balanceOf[account];
     }
     
-    //what is the give and take between if else and requires?  Just error messages?
     function transfer(address _to, uint _value) public returns (bool success){
-        if(_value> 0 && _value <=balanceOf(msg.sender)){
-            _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
+        require(_value> 0, "You have to send positive funds, bro" );
+        require(_value <=balanceOf(msg.sender), "Don't spend what you don't have, Mr. Trump");
+             _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
             _balanceOf[_to] = _balanceOf[_to].add(_value);
             return true;
-        }else{
-            return false;
-        }
     }
     
     function transferFrom(address from, address to, uint value) public returns (bool success){
-        if(_allowances[from][msg.sender]>0 
-        && value>0
-        && _allowances[from][msg.sender]> value
-        && _balanceOf[from]>value){
-            
+        require(_allowances[from][msg.sender]>0, "You owe someone $" );
+        require(value>0, "You have to send positive funds, bro" );
+        require(_allowances[from][msg.sender]> value, "You aren't allowed to spend that much from their account" );
+        require(_balanceOf[from]>value, "You don't have enough money");
+        
             _allowances[from][msg.sender] = _allowances[from][msg.sender].sub(value);
             _balanceOf[from] = _balanceOf[from].sub(value);
             _balanceOf[to] = _balanceOf[to].add(value);
             
             return true;
-        }
-        else{
-            return false;
-        }
+        
     }
     
-        function approve(address _spender, uint _value) public returns (bool success) {
+    function approve(address _spender, uint _value) public returns (bool success) {
         _allowances[msg.sender][_spender] = _value;
         return true;
     }
