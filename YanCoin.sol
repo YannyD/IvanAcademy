@@ -7,29 +7,23 @@ contract YanCoin is ERC20{
     
     using SafeMath for uint256;
     
-    string private  _symbol;
-    string private _name;
-    uint8 private  _decimals;
+    string private  constant _symbol= "YCN";
+    string private constant _name = "YanCoin";
+    uint8 private  constant _decimals= 18;
     uint private  __totalSupply;
     
     mapping(address=>uint) private _balanceOf;
     mapping(address=> mapping(address=>uint)) private _allowances;
     
     constructor() public{
-        _balanceOf[msg.sender]= __totalSupply;
-        _symbol = "YCN";
-        _name = "YanCoin";
-        _decimals = 18;
         __totalSupply = 100;
+        _balanceOf[msg.sender]= __totalSupply;
     }
     
     function name() public view returns (string memory){
         return _name;
     }
     
-    function setName(string memory newName) public {
-        _name = newName;
-    }
     
      function symbol() public view returns (string memory) {
          return _symbol;
@@ -40,6 +34,7 @@ contract YanCoin is ERC20{
     }
     
     function mint(address account, uint256 amount) public onlyOwner{
+       //How do we read the .add --> is it like js pass through?
        __totalSupply = __totalSupply.add(amount);
        _balanceOf[account] = _balanceOf[account].add(amount);
         }
@@ -56,7 +51,7 @@ contract YanCoin is ERC20{
     function transfer(address _to, uint _value) public returns (bool success){
         require(_value> 0, "You have to send positive funds, bro" );
         require(_value <=balanceOf(msg.sender), "Don't spend what you don't have, Mr. Trump");
-             _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
+                    _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
             _balanceOf[_to] = _balanceOf[_to].add(_value);
             return true;
     }
